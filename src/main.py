@@ -1,4 +1,9 @@
+import argparse
 import logging
+import socket
+import sys
+import threading
+import time
 from contextlib import asynccontextmanager
 from datetime import date, datetime
 from pathlib import Path
@@ -7,6 +12,7 @@ from zoneinfo import ZoneInfo
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+import uvicorn
 
 from src.database import (
     get_all_rooms,
@@ -155,3 +161,77 @@ async def serve_ui():
 
 if UI_DIR.exists():
     app.mount("/static", StaticFiles(directory=UI_DIR), name="static")
+
+
+def find_free_port() -> int:
+    """Bind to an ephemeral port to locate a free port on localhost."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+class UvicornServerThread(threading.Thread):
+    """Background thread running Uvicorn FastAPI server."""
+
+    def __init__(self, host: str, port: int):
+        super().__init__(daemon=True)
+        config = uvicorn.Config(app, host=host, port=port, log_level="warning")
+        self.server = uvicorn.Server(config)
+
+    def run(self):
+        self.server.run()
+
+    def stop(self):
+        self.server.should_exit = True
+
+
+def start_desktop_app():
+    """Launch native macOS pywebview window connected to ephemeral FastAPI backend server."""
+    port = find_free_port()
+    server_thread = UvicornServerThread("127.0.0.1", port)
+    server_thread.start()
+
+    # Wait briefly for FastAPI server socket to bind
+    time.sleep(0.4)
+
+    url = f"http://127.0.0.1:{port}"
+
+    try:
+        import webview
+
+        window = webview.create_window(
+            title="DCU Room Finder",
+            url=url,
+            width=1150,
+            height=820,
+            min_size=(800, 600),
+            resizable=True,
+        )
+        webview.start()
+    except Exception as e:
+        logger.error(f"pywebview failed to launch: {e}. Defaulting to browser.", exc_info=True)
+        import webbrowser
+        webbrowser.open(url)
+        try:
+            while server_thread.is_alive():
+                time.sleep(1)
+        except KeyboardInterrupt:
+            pass
+    finally:
+        server_thread.stop()
+
+
+def main():
+    parser = argparse.ArgumentParser(description="DCU Room Finder Desktop App")
+    parser.add_argument("--server-only", action="store_true", help="Run FastAPI server only (no desktop window)")
+    parser.add_argument("--port", type=int, default=8000, help="Port for server-only mode")
+    args = parser.parse_args()
+
+    if args.server_only:
+        uvicorn.run(app, host="127.0.0.1", port=args.port)
+    else:
+        start_desktop_app()
+
+
+if __name__ == "__main__":
+    main()

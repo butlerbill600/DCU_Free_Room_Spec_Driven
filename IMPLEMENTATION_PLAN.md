@@ -24,7 +24,7 @@
 - [x] Verify backend & frontend integration
 
 ## Phase 4: macOS Dock App Bundle (`feat/macos-dock-app-bundle`)
-- [ ] Integrate `pywebview` for native macOS window lifecycle management in `src/main.py`
-- [ ] Generate app assets (`assets/dcu_rooms.icns`)
-- [ ] Configure PyInstaller build script/spec for `DCU Room Finder.app`
-- [ ] Build and test native macOS `.app` bundle launch
+- [x] Integrate `pywebview` for native macOS window lifecycle management in `src/main.py`
+- [x] Generate app assets (`assets/dcu_rooms.icns`)
+- [x] Configure PyInstaller build script/spec for `DCU Room Finder.app`
+- [x] Build and test native macOS `.app` bundle launch
