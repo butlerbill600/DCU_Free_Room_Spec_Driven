@@ -10,12 +10,12 @@
 - [x] Execute `pytest` to verify all Phase 1 tests pass
 
 ## Phase 2: Live Data Scrapers (`feat/dcu-live-scrapers`)
-- [ ] Implement `src/scrapers/base.py` standard `RoomSourceAdapter` interface
-- [ ] Implement `src/scrapers/timetable.py` for DCU Open Timetable / Scientia adapter
-- [ ] Implement `src/scrapers/libcal.py` for O'Reilly & Cregan Library LibCal adapter
-- [ ] Implement `src/scrapers/su_events.py` for SU / Events adapter
-- [ ] Write tests in `tests/test_scrapers.py` with mocked data
-- [ ] Verify concurrent scraping and graceful fallback logic
+- [x] Implement `src/scrapers/base.py` standard `RoomSourceAdapter` interface
+- [x] Implement `src/scrapers/timetable.py` for DCU Open Timetable / Scientia adapter
+- [x] Implement `src/scrapers/libcal.py` for O'Reilly & Cregan Library LibCal adapter
+- [x] Implement `src/scrapers/su_events.py` for SU / Events adapter
+- [x] Write tests in `tests/test_scrapers.py` with mocked data
+- [x] Verify concurrent scraping and graceful fallback logic
 
 ## Phase 3: FastAPI Backend & Desktop UI (`feat/fastapi-and-ui`)
 - [ ] Implement `src/main.py` FastAPI server & API endpoints (`/api/rooms/search`, `/api/health`, `/api/campuses`)
