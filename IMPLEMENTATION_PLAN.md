@@ -18,10 +18,10 @@
 - [x] Verify concurrent scraping and graceful fallback logic
 
 ## Phase 3: FastAPI Backend & Desktop UI (`feat/fastapi-and-ui`)
-- [ ] Implement `src/main.py` FastAPI server & API endpoints (`/api/rooms/search`, `/api/health`, `/api/campuses`)
-- [ ] Build desktop UI in `src/ui/index.html` (Search control, campus filter pills, minimum duration filter, timeline visualizer)
-- [ ] Connect frontend to FastAPI backend with real-time updates and fallback badges
-- [ ] Verify backend & frontend integration
+- [x] Implement `src/main.py` FastAPI server & API endpoints (`/api/rooms/search`, `/api/health`, `/api/campuses`)
+- [x] Build desktop UI in `src/ui/index.html` (Search control, campus filter pills, minimum duration filter, timeline visualizer)
+- [x] Connect frontend to FastAPI backend with real-time updates and fallback badges
+- [x] Verify backend & frontend integration
 
 ## Phase 4: macOS Dock App Bundle (`feat/macos-dock-app-bundle`)
 - [ ] Integrate `pywebview` for native macOS window lifecycle management in `src/main.py`
