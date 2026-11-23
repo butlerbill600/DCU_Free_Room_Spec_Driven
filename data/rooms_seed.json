@@ -1,0 +1,367 @@
+[
+  {
+    "id": "glasnevin-l-lg25",
+    "code": "LG25",
+    "name": "McNulty Lecture Theatre",
+    "campus": "Glasnevin",
+    "building_code": "L",
+    "building_name": "McNulty Building",
+    "capacity": 120,
+    "room_type": "Lecture Hall",
+    "source_ids": {
+      "timetable": "L_LG25",
+      "su_events": "L_LG25"
+    }
+  },
+  {
+    "id": "glasnevin-l-l101",
+    "code": "L101",
+    "name": "McNulty Classroom 101",
+    "campus": "Glasnevin",
+    "building_code": "L",
+    "building_name": "McNulty Building",
+    "capacity": 60,
+    "room_type": "Classroom",
+    "source_ids": {
+      "timetable": "L_L101"
+    }
+  },
+  {
+    "id": "glasnevin-l-l125",
+    "code": "L125",
+    "name": "McNulty Computer Lab 125",
+    "campus": "Glasnevin",
+    "building_code": "L",
+    "building_name": "McNulty Building",
+    "capacity": 40,
+    "room_type": "Computer Lab",
+    "source_ids": {
+      "timetable": "L_L125"
+    }
+  },
+  {
+    "id": "glasnevin-s-s101",
+    "code": "S101",
+    "name": "Stokes Classroom 101",
+    "campus": "Glasnevin",
+    "building_code": "S",
+    "building_name": "Stokes Building",
+    "capacity": 80,
+    "room_type": "Lecture Hall",
+    "source_ids": {
+      "timetable": "S_S101"
+    }
+  },
+  {
+    "id": "glasnevin-s-sg01",
+    "code": "SG01",
+    "name": "Stokes Ground Floor Room 01",
+    "campus": "Glasnevin",
+    "building_code": "SG",
+    "building_name": "Stokes Building",
+    "capacity": 50,
+    "room_type": "Classroom",
+    "source_ids": {
+      "timetable": "SG_SG01"
+    }
+  },
+  {
+    "id": "glasnevin-cg-cg12",
+    "code": "CG12",
+    "name": "Henry Grattan Room CG12",
+    "campus": "Glasnevin",
+    "building_code": "CG",
+    "building_name": "Henry Grattan Building",
+    "capacity": 75,
+    "room_type": "Lecture Hall",
+    "source_ids": {
+      "timetable": "CG_CG12"
+    }
+  },
+  {
+    "id": "glasnevin-c-c167",
+    "code": "C167",
+    "name": "Henry Grattan Room C167",
+    "campus": "Glasnevin",
+    "building_code": "C",
+    "building_name": "Henry Grattan Building",
+    "capacity": 45,
+    "room_type": "Classroom",
+    "source_ids": {
+      "timetable": "C_C167"
+    }
+  },
+  {
+    "id": "glasnevin-ag-ag00",
+    "code": "AG00",
+    "name": "Albert College Room AG00",
+    "campus": "Glasnevin",
+    "building_code": "AG",
+    "building_name": "Albert College",
+    "capacity": 30,
+    "room_type": "Meeting Room",
+    "source_ids": {
+      "timetable": "AG_AG00"
+    }
+  },
+  {
+    "id": "glasnevin-hg-hg17",
+    "code": "HG17",
+    "name": "Nursing Building Room HG17",
+    "campus": "Glasnevin",
+    "building_code": "HG",
+    "building_name": "Nursing Building",
+    "capacity": 90,
+    "room_type": "Lecture Hall",
+    "source_ids": {
+      "timetable": "HG_HG17"
+    }
+  },
+  {
+    "id": "glasnevin-q-q119",
+    "code": "Q119",
+    "name": "DCU Business School Q119",
+    "campus": "Glasnevin",
+    "building_code": "Q",
+    "building_name": "DCU Business School",
+    "capacity": 100,
+    "room_type": "Lecture Hall",
+    "source_ids": {
+      "timetable": "Q_Q119"
+    }
+  },
+  {
+    "id": "glasnevin-u-u101",
+    "code": "U101",
+    "name": "The U Student Activity Room 101",
+    "campus": "Glasnevin",
+    "building_code": "U",
+    "building_name": "The U (Student Union)",
+    "capacity": 40,
+    "room_type": "Meeting Room",
+    "source_ids": {
+      "su_events": "U_U101"
+    }
+  },
+  {
+    "id": "st-patricks-e-e201",
+    "code": "E201",
+    "name": "Block E Room 201",
+    "campus": "St. Patrick's",
+    "building_code": "E",
+    "building_name": "Block E",
+    "capacity": 50,
+    "room_type": "Classroom",
+    "source_ids": {
+      "timetable": "E_E201"
+    }
+  },
+  {
+    "id": "st-patricks-f-f101",
+    "code": "F101",
+    "name": "Block F Room 101",
+    "campus": "St. Patrick's",
+    "building_code": "F",
+    "building_name": "Block F",
+    "capacity": 80,
+    "room_type": "Lecture Hall",
+    "source_ids": {
+      "timetable": "F_F101"
+    }
+  },
+  {
+    "id": "st-patricks-g-g101",
+    "code": "G101",
+    "name": "Block G Room 101",
+    "campus": "St. Patrick's",
+    "building_code": "G",
+    "building_name": "Block G",
+    "capacity": 40,
+    "room_type": "Classroom",
+    "source_ids": {
+      "timetable": "G_G101"
+    }
+  },
+  {
+    "id": "all-hallows-ah-g01",
+    "code": "AH.G01",
+    "name": "Senior House Room G01",
+    "campus": "All Hallows",
+    "building_code": "AH",
+    "building_name": "Senior House",
+    "capacity": 35,
+    "room_type": "Classroom",
+    "source_ids": {
+      "timetable": "AH_G01"
+    }
+  },
+  {
+    "id": "all-hallows-ah-101",
+    "code": "AH.101",
+    "name": "Purcell House Room 101",
+    "campus": "All Hallows",
+    "building_code": "AH",
+    "building_name": "Purcell House",
+    "capacity": 25,
+    "room_type": "Meeting Room",
+    "source_ids": {
+      "timetable": "AH_101"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr01",
+    "code": "GSR 1",
+    "name": "O'Reilly Library GSR 1 (Ground Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_1"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr03",
+    "code": "GSR 3",
+    "name": "O'Reilly Library GSR 3 (Ground Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 4,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_3"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr06",
+    "code": "GSR 6",
+    "name": "O'Reilly Library GSR 6 (First Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 8,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_6"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr07",
+    "code": "GSR 7",
+    "name": "O'Reilly Library GSR 7 (First Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_7"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr09",
+    "code": "GSR 9",
+    "name": "O'Reilly Library GSR 9 (First Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_9"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr10",
+    "code": "GSR 10",
+    "name": "O'Reilly Library GSR 10 (First Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_10"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr13",
+    "code": "GSR 13",
+    "name": "O'Reilly Library GSR 13 (Second Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 8,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_13"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr14",
+    "code": "GSR 14",
+    "name": "O'Reilly Library GSR 14 (Second Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 8,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_14"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr15",
+    "code": "GSR 15",
+    "name": "O'Reilly Library GSR 15 (Second Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_15"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr16",
+    "code": "GSR 16",
+    "name": "O'Reilly Library GSR 16 (Second Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_16"
+    }
+  },
+  {
+    "id": "lib-cregan-g215",
+    "code": "G215",
+    "name": "Cregan Library Study Room G215",
+    "campus": "Library GSRs",
+    "building_code": "LIB_CREGAN",
+    "building_name": "Cregan Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "cregan_g215"
+    }
+  },
+  {
+    "id": "lib-cregan-g315",
+    "code": "G315",
+    "name": "Cregan Library Study Room G315",
+    "campus": "Library GSRs",
+    "building_code": "LIB_CREGAN",
+    "building_name": "Cregan Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "cregan_g315"
+    }
+  }
+]
