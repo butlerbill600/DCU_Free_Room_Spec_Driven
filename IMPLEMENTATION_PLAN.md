@@ -1,13 +1,13 @@
 # DCU Room Finder Implementation Plan
 
 ## Phase 1: Core Engine & Seed Data (`feat/core-engine-and-seed`)
-- [ ] Create project configuration (`pyproject.toml`) and `.gitignore`
-- [ ] Create `data/rooms_seed.json` master registry for DCU rooms across campuses
-- [ ] Implement `src/models.py` for `Room`, `OccupancyBlock`, `RoomAvailability`, `Campus`, `RoomType`
-- [ ] Implement `src/database.py` for SQLite database operations and seed loading
-- [ ] Implement `src/engine.py` availability engine (07:00–22:00 Europe/Dublin timezone window, strict current occupancy exclusion, free_until, timeline blocks)
-- [ ] Implement unit tests in `tests/test_engine.py` testing operating hours, occupancy overlaps, boundary conditions, and filtering logic
-- [ ] Execute `pytest` to verify all Phase 1 tests pass
+- [x] Create project configuration (`pyproject.toml`) and `.gitignore`
+- [x] Create `data/rooms_seed.json` master registry for DCU rooms across campuses
+- [x] Implement `src/models.py` for `Room`, `OccupancyBlock`, `RoomAvailability`, `Campus`, `RoomType`
+- [x] Implement `src/database.py` for SQLite database operations and seed loading
+- [x] Implement `src/engine.py` availability engine (07:00–22:00 Europe/Dublin timezone window, strict current occupancy exclusion, free_until, timeline blocks)
+- [x] Implement unit tests in `tests/test_engine.py` testing operating hours, occupancy overlaps, boundary conditions, and filtering logic
+- [x] Execute `pytest` to verify all Phase 1 tests pass
 
 ## Phase 2: Live Data Scrapers (`feat/dcu-live-scrapers`)
 - [ ] Implement `src/scrapers/base.py` standard `RoomSourceAdapter` interface
