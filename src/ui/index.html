@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DCU Room Finder</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Top Header Control Bar -->
+  <header class="bg-slate-800/95 backdrop-blur border-b border-slate-700 sticky top-0 z-30 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        
+        <!-- App Title & Status Indicators -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-md text-white font-bold text-xl">
+              📍
+            </div>
+            <div>
+              <h1 class="text-lg font-bold text-white tracking-tight leading-tight">DCU Room Finder</h1>
+              <p class="text-xs text-slate-400">Glasnevin • St. Patrick's • All Hallows • Library GSRs</p>
+            </div>
+          </div>
+
+          <!-- Primary Search Button (Mobile View) -->
+          <button id="search-btn-mobile" onclick="performSearch()" class="md:hidden inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow transition">
+            <span id="search-icon-mobile">🔍</span>
+            <span>Search</span>
+          </button>
+        </div>
+
+        <!-- Desktop Controls: Search, Duration Filter, Health Dots -->
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Duration Filter -->
+          <div class="flex items-center bg-slate-900/80 rounded-lg p-1 border border-slate-700/80">
+            <span class="text-xs text-slate-400 px-2 font-medium">Free Min:</span>
+            <button onclick="setDuration(0)" id="dur-0" class="dur-btn text-xs px-2.5 py-1 rounded-md font-medium text-white bg-blue-600">Any</button>
+            <button onclick="setDuration(30)" id="dur-30" class="dur-btn text-xs px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-white">30m+</button>
+            <button onclick="setDuration(60)" id="dur-60" class="dur-btn text-xs px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-white">1h+</button>
+            <button onclick="setDuration(120)" id="dur-120" class="dur-btn text-xs px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-white">2h+</button>
+          </div>
+
+          <!-- Primary Search Button -->
+          <button id="search-btn" onclick="performSearch()" class="hidden md:inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm px-5 py-2 rounded-lg shadow transition transform active:scale-95">
+            <svg id="search-spinner" class="animate-spin hidden h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span id="search-btn-text">Search Available Rooms</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Campus Filter Pills Bar -->
+      <div class="mt-3 flex items-center space-x-2 overflow-x-auto custom-scrollbar pb-1 pt-1">
+        <button onclick="setCampus('All Campuses')" id="pill-all" class="campus-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-blue-600 text-white">All Campuses</button>
+        <button onclick="setCampus('Glasnevin')" id="pill-glasnevin" class="campus-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700">Glasnevin</button>
+        <button onclick="setCampus('St. Patrick\'s')" id="pill-stpatricks" class="campus-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700">St. Patrick's</button>
+        <button onclick="setCampus('All Hallows')" id="pill-allhallows" class="campus-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700">All Hallows</button>
+        <button onclick="setCampus('Library GSRs')" id="pill-library" class="campus-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700">Library GSRs</button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Health & Timestamp Subbar -->
+  <div class="bg-slate-950/70 border-b border-slate-800 px-4 py-2 text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center space-x-4">
+        <span>Sources:</span>
+        <div class="flex items-center space-x-1.5">
+          <span id="dot-timetable" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <span>Timetable</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span id="dot-libcal" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <span>Library</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span id="dot-su_events" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <span>SU/Events</span>
+        </div>
+        <span id="cached-badge" class="hidden px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">(Cached)</span>
+      </div>
+      <div id="last-updated" class="text-slate-500">
+        Click Search to fetch real-time availability
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Display Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8">
+
+    <!-- Operating Hours Banner -->
+    <div id="operating-banner" class="hidden mb-6 bg-amber-950/40 border border-amber-600/40 text-amber-200 px-4 py-3 rounded-xl flex items-center space-x-3 shadow-md">
+      <span class="text-2xl">🌙</span>
+      <div>
+        <h4 class="text-sm font-semibold text-amber-300">Outside Standard Campus Operating Hours (07:00–22:00)</h4>
+        <p class="text-xs text-amber-200/80">DCU campus buildings and group study spaces operate standard access between 07:00 and 22:00 Europe/Dublin. Below is today's schedule breakdown.</p>
+      </div>
+    </div>
+
+    <!-- Results Header -->
+    <div class="flex items-center justify-between mb-4">
+      <h2 id="results-count-title" class="text-base font-semibold text-slate-200">
+        Available Rooms
+      </h2>
+      <span id="results-meta" class="text-xs text-slate-400">
+        Operating Window: 07:00–22:00
+      </span>
+    </div>
+
+    <!-- Skeleton Loaders -->
+    <div id="skeleton-container" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-slate-800/60 rounded-xl p-5 border border-slate-700/60 animate-pulse">
+        <div class="h-5 bg-slate-700 rounded w-1/2 mb-3"></div>
+        <div class="h-4 bg-slate-700 rounded w-3/4 mb-4"></div>
+        <div class="h-8 bg-slate-700 rounded w-full"></div>
+      </div>
+      <div class="bg-slate-800/60 rounded-xl p-5 border border-slate-700/60 animate-pulse">
+        <div class="h-5 bg-slate-700 rounded w-1/2 mb-3"></div>
+        <div class="h-4 bg-slate-700 rounded w-3/4 mb-4"></div>
+        <div class="h-8 bg-slate-700 rounded w-full"></div>
+      </div>
+      <div class="bg-slate-800/60 rounded-xl p-5 border border-slate-700/60 animate-pulse">
+        <div class="h-5 bg-slate-700 rounded w-1/2 mb-3"></div>
+        <div class="h-4 bg-slate-700 rounded w-3/4 mb-4"></div>
+        <div class="h-8 bg-slate-700 rounded w-full"></div>
+      </div>
+    </div>
+
+    <!-- Room Cards Container -->
+    <div id="rooms-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Dynamically Populated -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-16 bg-slate-800/40 border border-slate-700/50 rounded-2xl">
+      <div class="text-5xl mb-3">🏫</div>
+      <h3 class="text-lg font-semibold text-slate-200 mb-1">No Free Rooms Available Right Now</h3>
+      <p class="text-sm text-slate-400 max-w-md mx-auto">Try selecting a different campus or reducing the minimum free duration filter above.</p>
+    </div>
+
+  </main>
+
+  <script>
+    let currentCampus = "All Campuses";
+    let currentMinDuration = 0;
+
+    function setCampus(campus) {
+      currentCampus = campus;
+      document.querySelectorAll('.campus-pill').forEach(btn => {
+        btn.className = "campus-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700";
+      });
+      
+      const activeMap = {
+        'All Campuses': 'pill-all',
+        'Glasnevin': 'pill-glasnevin',
+        'St. Patrick\'s': 'pill-stpatricks',
+        'All Hallows': 'pill-allhallows',
+        'Library GSRs': 'pill-library'
+      };
+
+      const activeId = activeMap[campus];
+      if (activeId) {
+        document.getElementById(activeId).className = "campus-pill px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-blue-600 text-white shadow";
+      }
+      performSearch();
+    }
+
+    function setDuration(mins) {
+      currentMinDuration = mins;
+      document.querySelectorAll('.dur-btn').forEach(btn => {
+        btn.className = "dur-btn text-xs px-2.5 py-1 rounded-md font-medium text-slate-400 hover:text-white";
+      });
+      document.getElementById(`dur-${mins}`).className = "dur-btn text-xs px-2.5 py-1 rounded-md font-medium text-white bg-blue-600";
+      performSearch();
+    }
+
+    async function performSearch() {
+      showLoading(true);
+
+      const params = new URLSearchParams({
+        campus: currentCampus,
+        min_duration: currentMinDuration,
+        force_refresh: 'true'
+      });
+
+      try {
+        const res = await fetch(`/api/rooms/search?${params.toString()}`);
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const data = await res.json();
+        renderResults(data);
+      } catch (err) {
+        console.error("Search failed:", err);
+        document.getElementById('empty-state').classList.remove('hidden');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function showLoading(isLoading) {
+      const spinner = document.getElementById('search-spinner');
+      const text = document.getElementById('search-btn-text');
+      const skeleton = document.getElementById('skeleton-container');
+      const grid = document.getElementById('rooms-grid');
+
+      if (isLoading) {
+        if (spinner) spinner.classList.remove('hidden');
+        if (text) text.innerText = "Scanning DCU Portals...";
+        if (skeleton) skeleton.classList.remove('hidden');
+        if (grid) grid.innerHTML = '';
+        document.getElementById('empty-state').classList.add('hidden');
+      } else {
+        if (spinner) spinner.classList.add('hidden');
+        if (text) text.innerText = "Search Available Rooms";
+        if (skeleton) skeleton.classList.add('hidden');
+      }
+    }
+
+    function renderResults(data) {
+      // Health Dots & Cached Badge
+      const health = data.health_status || {};
+      setHealthDot('dot-timetable', health.timetable);
+      setHealthDot('dot-libcal', health.libcal);
+      setHealthDot('dot-su_events', health.su_events);
+
+      const cachedBadge = document.getElementById('cached-badge');
+      if (data.is_cached_fallback) {
+        cachedBadge.classList.remove('hidden');
+      } else {
+        cachedBadge.classList.add('hidden');
+      }
+
+      // Last Updated Timestamp
+      const updatedEl = document.getElementById('last-updated');
+      if (data.timestamp) {
+        const timeStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        updatedEl.innerText = `Updated at ${timeStr}`;
+      }
+
+      // Operating hours banner
+      const banner = document.getElementById('operating-banner');
+      if (data.operating_hours_banner) {
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+
+      // Rooms grid
+      const grid = document.getElementById('rooms-grid');
+      const emptyState = document.getElementById('empty-state');
+      const countTitle = document.getElementById('results-count-title');
+      grid.innerHTML = '';
+
+      const rooms = data.rooms || [];
+      countTitle.innerText = `Available Free Rooms (${rooms.length} free right now)`;
+
+      if (rooms.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      rooms.forEach(ra => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/50 rounded-2xl p-5 shadow-lg transition duration-150 flex flex-col justify-between";
+
+        const room = ra.room;
+        const freeUntil = ra.free_until_str || "22:00";
+        const remMin = ra.remaining_minutes || 0;
+        const hoursLeft = Math.floor(remMin / 60);
+        const minsLeft = remMin % 60;
+        const durationText = hoursLeft > 0 ? `${hoursLeft}h ${minsLeft}m left` : `${minsLeft}m left`;
+
+        // Timeline Bar HTML
+        const timeline = ra.timeline || [];
+        let timelineBarsHtml = '';
+        timeline.forEach(tb => {
+          const isFree = tb.status === 'free';
+          const colorClass = isFree ? 'bg-emerald-500 hover:bg-emerald-400' : 'bg-slate-600/60';
+          timelineBarsHtml += `<div title="${tb.start_time_str} - ${tb.end_time_str}: ${tb.status}" class="flex-1 h-3 rounded-xs ${colorClass} transition"></div>`;
+        });
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div>
+                <h3 class="text-lg font-bold text-white tracking-tight">${room.code}</h3>
+                <p class="text-xs font-medium text-slate-400">${room.building_name}</p>
+              </div>
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Free until ${freeUntil} (${durationText})
+              </span>
+            </div>
+
+            <div class="flex items-center space-x-2 text-xs text-slate-400 mb-4">
+              <span class="px-2 py-0.5 rounded bg-slate-700/60 text-slate-300 font-medium">${room.campus}</span>
+              <span>•</span>
+              <span>${room.capacity} seats</span>
+              <span>•</span>
+              <span>${room.room_type}</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400 mb-1">
+              <span>07:00 Schedule Timeline</span>
+              <span>22:00</span>
+            </div>
+            <div class="flex items-center space-x-1 bg-slate-900/60 p-1.5 rounded-lg border border-slate-700/50">
+              ${timelineBarsHtml}
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1 px-0.5 font-mono">
+              <span>07:00</span>
+              <span>12:00</span>
+              <span>17:00</span>
+              <span>22:00</span>
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function setHealthDot(elementId, isHealthy) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      if (isHealthy === false) {
+        el.className = "w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm";
+      } else {
+        el.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm";
+      }
+    }
+
+    // Auto-search on page load
+    document.addEventListener("DOMContentLoaded", () => {
+      performSearch();
+    });
+  </script>
+</body>
+</html>
