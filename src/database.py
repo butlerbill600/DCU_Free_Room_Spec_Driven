@@ -4,12 +4,29 @@ from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Union
+
 from src.models import Campus, OccupancyBlock, OccupancyStatus, Room, RoomType
+from src.utils import get_default_db_path, get_resource_path
 
 
-def init_db(db_path: Union[str, Path] = "dcu_rooms.db") -> None:
+def _resolve_db_path(db_path: Optional[Union[str, Path]] = None) -> Union[str, Path]:
+    """Resolve database path, creating parent directories for file paths."""
+    if db_path is None:
+        db_path = get_default_db_path()
+
+    db_str = str(db_path)
+    if db_str == ":memory:":
+        return ":memory:"
+
+    path_obj = Path(db_path)
+    path_obj.parent.mkdir(parents=True, exist_ok=True)
+    return path_obj
+
+
+def init_db(db_path: Optional[Union[str, Path]] = None) -> None:
     """Initialize SQLite database tables for rooms and occupancy cache."""
-    conn = sqlite3.connect(db_path)
+    resolved_path = _resolve_db_path(db_path)
+    conn = sqlite3.connect(resolved_path)
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -45,20 +62,26 @@ def init_db(db_path: Union[str, Path] = "dcu_rooms.db") -> None:
 
 
 def seed_rooms(
-    db_path: Union[str, Path] = "dcu_rooms.db",
-    seed_file: Union[str, Path] = "data/rooms_seed.json"
+    db_path: Optional[Union[str, Path]] = None,
+    seed_file: Optional[Union[str, Path]] = None,
 ) -> List[Room]:
     """Seed database with master room registry from JSON file."""
-    init_db(db_path)
-    seed_path = Path(seed_file)
+    if seed_file is None:
+        seed_path = get_resource_path("data/rooms_seed.json")
+    else:
+        seed_path = Path(seed_file)
+
     if not seed_path.exists():
-        raise FileNotFoundError(f"Seed file not found at {seed_file}")
+        raise FileNotFoundError(f"Seed file not found at {seed_path}")
+
+    resolved_db_path = _resolve_db_path(db_path)
+    init_db(resolved_db_path)
 
     with open(seed_path, "r", encoding="utf-8") as f:
         rooms_data = json.load(f)
 
     rooms: List[Room] = []
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(resolved_db_path)
     cursor = conn.cursor()
 
     for item in rooms_data:
@@ -89,11 +112,12 @@ def seed_rooms(
 
 
 def get_all_rooms(
-    db_path: Union[str, Path] = "dcu_rooms.db",
-    campus_filter: Optional[str] = None
+    db_path: Optional[Union[str, Path]] = None,
+    campus_filter: Optional[str] = None,
 ) -> List[Room]:
     """Retrieve all rooms from database, optionally filtered by campus."""
-    conn = sqlite3.connect(db_path)
+    resolved_db_path = _resolve_db_path(db_path)
+    conn = sqlite3.connect(resolved_db_path)
     cursor = conn.cursor()
 
     if campus_filter and campus_filter != "All Campuses":
@@ -128,11 +152,12 @@ def get_all_rooms(
 
 
 def get_room_by_id(
-    db_path: Union[str, Path] = "dcu_rooms.db",
-    room_id: str = ""
+    db_path: Optional[Union[str, Path]] = None,
+    room_id: str = "",
 ) -> Optional[Room]:
     """Retrieve a single room by its unique ID."""
-    conn = sqlite3.connect(db_path)
+    resolved_db_path = _resolve_db_path(db_path)
+    conn = sqlite3.connect(resolved_db_path)
     cursor = conn.cursor()
     cursor.execute(
         "SELECT id, code, name, campus, building_code, building_name, capacity, room_type, source_ids FROM rooms WHERE id = ?",
@@ -158,15 +183,16 @@ def get_room_by_id(
 
 
 def cache_occupancy_blocks(
-    db_path: Union[str, Path] = "dcu_rooms.db",
-    blocks: List[OccupancyBlock] = None
+    db_path: Optional[Union[str, Path]] = None,
+    blocks: Optional[List[OccupancyBlock]] = None,
 ) -> None:
     """Save scraped occupancy blocks into SQLite cache."""
     if not blocks:
         return
 
-    init_db(db_path)
-    conn = sqlite3.connect(db_path)
+    resolved_db_path = _resolve_db_path(db_path)
+    init_db(resolved_db_path)
+    conn = sqlite3.connect(resolved_db_path)
     cursor = conn.cursor()
     fetched_at = datetime.now(timezone.utc).isoformat()
 
@@ -193,11 +219,12 @@ def cache_occupancy_blocks(
 
 
 def get_cached_occupancy_blocks(
-    db_path: Union[str, Path] = "dcu_rooms.db",
-    room_ids: Optional[List[str]] = None
+    db_path: Optional[Union[str, Path]] = None,
+    room_ids: Optional[List[str]] = None,
 ) -> List[OccupancyBlock]:
     """Retrieve stored occupancy blocks from SQLite cache."""
-    conn = sqlite3.connect(db_path)
+    resolved_db_path = _resolve_db_path(db_path)
+    conn = sqlite3.connect(resolved_db_path)
     cursor = conn.cursor()
 
     if room_ids:
