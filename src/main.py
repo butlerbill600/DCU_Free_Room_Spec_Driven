@@ -4,6 +4,7 @@ import socket
 import sys
 import threading
 import time
+import urllib.request
 from contextlib import asynccontextmanager
 from datetime import date, datetime
 from pathlib import Path
@@ -27,11 +28,12 @@ from src.engine import (
 )
 from src.models import Campus, RoomAvailability
 from src.scrapers.aggregator import ScrapeAggregator
+from src.utils import get_default_db_path, get_resource_path
 
 logger = logging.getLogger("dcu_room_finder")
-DB_PATH = "dcu_rooms.db"
-SEED_PATH = "data/rooms_seed.json"
-UI_DIR = Path(__file__).parent / "ui"
+DB_PATH = get_default_db_path()
+SEED_PATH = get_resource_path("data/rooms_seed.json")
+UI_DIR = get_resource_path("src/ui")
 
 
 @asynccontextmanager
@@ -175,7 +177,9 @@ class UvicornServerThread(threading.Thread):
 
     def __init__(self, host: str, port: int):
         super().__init__(daemon=True)
-        config = uvicorn.Config(app, host=host, port=port, log_level="warning")
+        # When sys.stdout is None (e.g. packaged GUI app), log_config must be None to prevent stream handler crash
+        log_config = None if sys.stdout is None else uvicorn.config.LOGGING_CONFIG
+        config = uvicorn.Config(app, host=host, port=port, log_level="warning", log_config=log_config)
         self.server = uvicorn.Server(config)
 
     def run(self):
@@ -185,16 +189,33 @@ class UvicornServerThread(threading.Thread):
         self.server.should_exit = True
 
 
+def wait_for_health_ok(server_url: str, max_wait_seconds: float = 5.0) -> bool:
+    """Poll the /api/health endpoint until the server responds HTTP 200 OK."""
+    health_url = f"{server_url}/api/health"
+    start_time = time.time()
+    while time.time() - start_time < max_wait_seconds:
+        try:
+            with urllib.request.urlopen(health_url, timeout=0.5) as response:
+                if response.status == 200:
+                    return True
+        except Exception:
+            pass
+        time.sleep(0.05)
+    return False
+
+
 def start_desktop_app():
     """Launch native macOS pywebview window connected to ephemeral FastAPI backend server."""
     port = find_free_port()
     server_thread = UvicornServerThread("127.0.0.1", port)
     server_thread.start()
 
-    # Wait briefly for FastAPI server socket to bind
-    time.sleep(0.4)
-
     url = f"http://127.0.0.1:{port}"
+
+    # Wait until /api/health returns HTTP 200 before launching pywebview
+    server_ready = wait_for_health_ok(url, max_wait_seconds=5.0)
+    if not server_ready:
+        logger.warning("FastAPI backend /api/health did not respond within 5 seconds.")
 
     try:
         import webview

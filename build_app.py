@@ -17,6 +17,7 @@ def build():
         sys.executable,
         "-m",
         "PyInstaller",
+        "--noconfirm",
         "--clean",
         spec_path,
     ]
