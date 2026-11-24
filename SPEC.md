@@ -40,17 +40,25 @@ Each connector implements a unified `RoomSourceAdapter` interface returning norm
 
 ### 3.1 Availability & Filtering Rules
 * **Operating Window:** `07:00` to `22:00` daily (`Europe/Dublin` timezone, handling GMT/IST automatically).
-* **Current Occupancy Rule (Strict Exclusion):**
-  * When the user clicks **Search**, the system captures `now = current_local_time()`.
-  * If a room has an active `OccupancyBlock` where `start_time <= now < end_time`, the room is marked **In Use** and **excluded from the default results list**.
-  * If `now < 07:00` or `now >= 22:00`, the app displays a banner indicating campus buildings are outside standard `07:00–22:00` hours while still showing the full `07:00–22:00` schedule breakdown for the selected day.
+* **7-Day Rolling Date Selector:**
+  * Allows selecting any date within a 7-day window (`[today, today + 6 days]`).
+  * **When `selected_date == today`:**
+    * **Current Occupancy Rule (Strict Exclusion):** Captures `now = current_local_time()`. If a room has an active `OccupancyBlock` where `start_time <= now < end_time`, the room is marked **In Use** and excluded from the default results list.
+    * If `now < 07:00` or `now >= 22:00`, displays an operating hours banner while rendering the full `07:00–22:00` schedule.
+    * Calculate `free_until` and `remaining_minutes` from `now`.
+  * **When `selected_date > today` (Tomorrow through +6 days):**
+    * Evaluates availability across the full `07:00–22:00` window for that target date.
+    * Includes rooms that have available free windows during `07:00–22:00` on that day.
+    * Calculates total free minutes and longest continuous free block across the operating hours.
+    * Renders full `07:00–22:00` hourly timeline bar (green = free, gray = booked) so the user can see exact free slots for future days.
 * **Free Window Calculation:**
-  * For every room that is **free right now**, calculate `free_until` (the start time of its next booking, or `22:00` if free for the rest of the evening) and `remaining_minutes`.
+  * For every room that is free during the target window, calculate `free_until` (or next booking start) and `remaining_minutes`.
   * Render an interactive `07:00–22:00` visual timeline bar per room showing free blocks (green) vs. booked blocks (muted gray) so the user can see if a room is free for 20 minutes or 4 hours.
 
 ### 3.2 User Interface Specification
 * **Top Control Bar:**
   * Primary **`Search`** button (triggers live concurrent fetch across all connectors with a progress indicator).
+  * **7-Day Rolling Date Selector Bar:** Horizontal scrollable/sliding date pills showing `Today`, `Tomorrow`, and formatted day pills (`Thu 26 Nov` through `+6 days`).
   * **Campus Filter Pills:** `All Campuses` | `Glasnevin` | `St. Patrick's` | `All Hallows` | `Library GSRs`.
   * **Minimum Free Duration Filter:** `Any` | `30m+` | `1h+` | `2h+`.
   * **Last Updated Timestamp** & source health status dots (e.g., `Timetable ✓`, `Library ✓`, `SU/Events ✓`).

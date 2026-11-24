@@ -28,3 +28,13 @@
 - [x] Generate app assets (`assets/dcu_rooms.icns`)
 - [x] Configure PyInstaller build script/spec for `DCU Room Finder.app`
 - [x] Build and test native macOS `.app` bundle launch
+
+## Phase 5: 7-Day Rolling Date Selector (`feat/7-day-availability-bar`)
+- [x] Document 7-day rolling date selector feature rules in `SPEC.md` and add Phase 5 to `IMPLEMENTATION_PLAN.md`
+- [x] Update SQLite cache (`src/database.py`) and scrapers (`src/scrapers/`) to support date-keyed caching and date parameter
+- [x] Update engine (`src/engine.py`) to calculate availability for future dates (`selected_date > today`) across 07:00–22:00 window
+- [x] Update FastAPI endpoint (`src/main.py`) to accept optional `date` query parameter (validated in range `[today, today + 6 days]`)
+- [x] Implement responsive 7-day horizontal selector bar in frontend (`src/ui/index.html`) with day pills (`Today`, `Tomorrow`, +5 days)
+- [x] Write unit tests in `tests/` covering future-date availability calculations, date-keyed caching, and API date parameter validation
+- [x] Rebuild native macOS app bundle with `build_app.py`
+- [x] Open clean Pull Request into `main`

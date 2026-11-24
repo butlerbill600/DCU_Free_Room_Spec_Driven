@@ -69,6 +69,34 @@ async def test_search_rooms_endpoint_duration_filter():
 
 
 @pytest.mark.asyncio
+async def test_search_rooms_endpoint_date_parameter():
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+    dublin_now = datetime.now(ZoneInfo("Europe/Dublin"))
+    today = dublin_now.date()
+    tomorrow = today + timedelta(days=1)
+    out_of_range = today + timedelta(days=10)
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        # Valid future date within 7-day rolling window
+        resp_valid = await client.get(f"/api/rooms/search?date={tomorrow.isoformat()}&force_refresh=false")
+        assert resp_valid.status_code == 200
+        data_valid = resp_valid.json()
+        assert data_valid["date"] == tomorrow.isoformat()
+        assert data_valid["is_today"] is False
+
+        # Invalid date format
+        resp_invalid = await client.get("/api/rooms/search?date=invalid-date")
+        assert resp_invalid.status_code == 400
+        assert "Invalid date format" in resp_invalid.json()["detail"]
+
+        # Out-of-range date (> +6 days)
+        resp_out = await client.get(f"/api/rooms/search?date={out_of_range.isoformat()}")
+        assert resp_out.status_code == 400
+        assert "Date out of range" in resp_out.json()["detail"]
+
+
+@pytest.mark.asyncio
 async def test_serve_ui_homepage():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.get("/")
