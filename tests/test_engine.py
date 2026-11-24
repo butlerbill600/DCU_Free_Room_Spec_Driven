@@ -289,3 +289,75 @@ def test_filtering_and_sorting(sample_room):
     long_results = filter_available_rooms(avails, min_duration_minutes=180)
     assert len(long_results) == 1
     assert long_results[0].room.id == room_b.id
+
+
+def test_future_date_availability_calculation(sample_room):
+    now = datetime(2026, 11, 23, 10, 0, tzinfo=DUBLIN_TZ)
+    future_date = (now + timedelta(days=2)).date()
+
+    future_day_start = datetime(
+        future_date.year, future_date.month, future_date.day, 7, 0, 0, tzinfo=DUBLIN_TZ
+    )
+
+    # Booking on future date from 09:00 to 11:00
+    future_block = OccupancyBlock(
+        room_id=sample_room.id,
+        start_time=future_day_start.replace(hour=9, minute=0),
+        end_time=future_day_start.replace(hour=11, minute=0),
+        source="timetable",
+        status=OccupancyStatus.BOOKED,
+        summary="Future Lecture CA202",
+    )
+
+    avail = calculate_room_availability(
+        sample_room, [future_block], now=now, target_date=future_date
+    )
+
+    assert avail.is_within_operating_hours is True
+    assert avail.is_available_now is True
+    assert avail.free_until_str == "09:00"
+    # Total free time: 07:00-09:00 (120m) + 11:00-22:00 (660m) = 780m
+    assert avail.remaining_minutes == 780
+
+    timeline_dict = {t.hour: t.status for t in avail.timeline}
+    assert timeline_dict[7] == "free"
+    assert timeline_dict[8] == "free"
+    assert timeline_dict[9] == "booked"
+    assert timeline_dict[10] == "booked"
+    assert timeline_dict[11] == "free"
+
+
+def test_date_keyed_caching(temp_db):
+    date_a = datetime(2026, 11, 24, tzinfo=DUBLIN_TZ).date()
+    date_b = datetime(2026, 11, 25, tzinfo=DUBLIN_TZ).date()
+
+    dt_a = datetime(2026, 11, 24, 10, 0, tzinfo=DUBLIN_TZ)
+    dt_b = datetime(2026, 11, 25, 14, 0, tzinfo=DUBLIN_TZ)
+
+    block_a = OccupancyBlock(
+        room_id="glasnevin-l-lg25",
+        start_time=dt_a,
+        end_time=dt_a + timedelta(hours=2),
+        source="timetable",
+        summary="Day A Lecture",
+    )
+
+    block_b = OccupancyBlock(
+        room_id="glasnevin-l-lg25",
+        start_time=dt_b,
+        end_time=dt_b + timedelta(hours=1),
+        source="libcal",
+        summary="Day B Study",
+    )
+
+    cache_occupancy_blocks(temp_db, [block_a], target_date=date_a)
+    cache_occupancy_blocks(temp_db, [block_b], target_date=date_b)
+
+    cached_a = get_cached_occupancy_blocks(temp_db, target_date=date_a)
+    assert len(cached_a) == 1
+    assert cached_a[0].summary == "Day A Lecture"
+
+    cached_b = get_cached_occupancy_blocks(temp_db, target_date=date_b)
+    assert len(cached_b) == 1
+    assert cached_b[0].summary == "Day B Study"
+

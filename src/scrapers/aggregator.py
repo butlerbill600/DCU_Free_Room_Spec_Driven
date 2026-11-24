@@ -66,7 +66,7 @@ class ScrapeAggregator:
         # Cache successfully scraped blocks into SQLite database
         if db_path and all_blocks:
             try:
-                cache_occupancy_blocks(db_path, all_blocks)
+                cache_occupancy_blocks(db_path, all_blocks, target_date=target_date)
             except Exception as e:
                 logger.error(f"Failed to cache occupancy blocks: {e}")
 
@@ -74,7 +74,9 @@ class ScrapeAggregator:
         is_cached_fallback = False
         if any_failed and db_path:
             try:
-                cached = get_cached_occupancy_blocks(db_path, room_ids=[r.id for r in rooms])
+                cached = get_cached_occupancy_blocks(
+                    db_path, room_ids=[r.id for r in rooms], target_date=target_date
+                )
                 if cached:
                     is_cached_fallback = True
                     # Merge cached blocks for failed sources

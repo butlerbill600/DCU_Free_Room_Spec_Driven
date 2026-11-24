@@ -6,7 +6,7 @@ import threading
 import time
 import urllib.request
 from contextlib import asynccontextmanager
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
 from zoneinfo import ZoneInfo
@@ -92,14 +92,21 @@ async def search_rooms(
 ):
     """Search for currently available rooms across DCU campuses."""
     now_dublin = datetime.now(DUBLIN_TZ)
+    today = now_dublin.date()
+    max_date = today + timedelta(days=6)
 
     if date_str:
         try:
             target_date = date.fromisoformat(date_str)
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+        if target_date < today or target_date > max_date:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Date out of range. Must be within 7-day window [{today.isoformat()} to {max_date.isoformat()}]",
+            )
     else:
-        target_date = now_dublin.date()
+        target_date = today
 
     rooms = get_all_rooms(DB_PATH)
     if not rooms and Path(SEED_PATH).exists():
@@ -108,7 +115,7 @@ async def search_rooms(
     health_status: Dict[str, bool] = {"timetable": True, "libcal": True, "su_events": True}
     is_cached_fallback = False
 
-    if force_refresh and target_date == now_dublin.date():
+    if force_refresh:
         aggregator = ScrapeAggregator()
         agg_result = await aggregator.fetch_all(
             rooms=rooms,
@@ -120,13 +127,15 @@ async def search_rooms(
         health_status = agg_result.health_status
         is_cached_fallback = agg_result.is_cached_fallback
     else:
-        occupancy_blocks = get_cached_occupancy_blocks(DB_PATH)
+        occupancy_blocks = get_cached_occupancy_blocks(DB_PATH, target_date=target_date)
         is_cached_fallback = True
 
     # Compute availability for each room
     all_availabilities: List[RoomAvailability] = []
     for room in rooms:
-        avail = calculate_room_availability(room, occupancy_blocks, now=now_dublin)
+        avail = calculate_room_availability(
+            room, occupancy_blocks, now=now_dublin, target_date=target_date
+        )
         all_availabilities.append(avail)
 
     # Filter available rooms by campus and duration
@@ -136,13 +145,17 @@ async def search_rooms(
         campus_filter=campus,
     )
 
-    day_start = now_dublin.replace(hour=7, minute=0, second=0, microsecond=0)
-    day_end = now_dublin.replace(hour=22, minute=0, second=0, microsecond=0)
-    outside_operating_hours = not (day_start <= now_dublin < day_end)
+    if target_date == today:
+        day_start = now_dublin.replace(hour=7, minute=0, second=0, microsecond=0)
+        day_end = now_dublin.replace(hour=22, minute=0, second=0, microsecond=0)
+        outside_operating_hours = not (day_start <= now_dublin < day_end)
+    else:
+        outside_operating_hours = False
 
     return {
         "timestamp": now_dublin.isoformat(),
         "date": target_date.isoformat(),
+        "is_today": (target_date == today),
         "operating_hours_banner": outside_operating_hours,
         "is_cached_fallback": is_cached_fallback,
         "health_status": health_status,

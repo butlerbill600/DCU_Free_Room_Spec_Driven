@@ -1,6 +1,6 @@
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Union
@@ -53,9 +53,16 @@ def init_db(db_path: Optional[Union[str, Path]] = None) -> None:
             status TEXT NOT NULL,
             summary TEXT,
             fetched_at TEXT NOT NULL,
+            target_date TEXT,
             FOREIGN KEY (room_id) REFERENCES rooms (id)
         )
     """)
+
+    # Ensure target_date column exists for upgraded existing databases
+    cursor.execute("PRAGMA table_info(occupancy_cache)")
+    columns = [col[1] for col in cursor.fetchall()]
+    if "target_date" not in columns:
+        cursor.execute("ALTER TABLE occupancy_cache ADD COLUMN target_date TEXT")
 
     conn.commit()
     conn.close()
@@ -185,8 +192,9 @@ def get_room_by_id(
 def cache_occupancy_blocks(
     db_path: Optional[Union[str, Path]] = None,
     blocks: Optional[List[OccupancyBlock]] = None,
+    target_date: Optional[date] = None,
 ) -> None:
-    """Save scraped occupancy blocks into SQLite cache."""
+    """Save scraped occupancy blocks into SQLite cache, keyed by target_date."""
     if not blocks:
         return
 
@@ -196,21 +204,28 @@ def cache_occupancy_blocks(
     cursor = conn.cursor()
     fetched_at = datetime.now(timezone.utc).isoformat()
 
+    target_date_str = target_date.isoformat() if target_date else blocks[0].start_time.date().isoformat()
+
+    # Clear existing cached blocks for this target_date to avoid duplicates upon re-cache
+    cursor.execute("DELETE FROM occupancy_cache WHERE target_date = ?", (target_date_str,))
+
     for block in blocks:
+        b_status = block.status.value if isinstance(block.status, Enum) else str(block.status)
         cursor.execute(
             """
             INSERT INTO occupancy_cache (
-                room_id, start_time, end_time, source, status, summary, fetched_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                room_id, start_time, end_time, source, status, summary, fetched_at, target_date
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 block.room_id,
                 block.start_time.isoformat(),
                 block.end_time.isoformat(),
                 block.source,
-                block.status.value,
+                b_status,
                 block.summary,
                 fetched_at,
+                target_date_str,
             ),
         )
 
@@ -221,23 +236,27 @@ def cache_occupancy_blocks(
 def get_cached_occupancy_blocks(
     db_path: Optional[Union[str, Path]] = None,
     room_ids: Optional[List[str]] = None,
+    target_date: Optional[date] = None,
 ) -> List[OccupancyBlock]:
-    """Retrieve stored occupancy blocks from SQLite cache."""
+    """Retrieve stored occupancy blocks from SQLite cache, optionally filtered by room_ids and target_date."""
     resolved_db_path = _resolve_db_path(db_path)
     conn = sqlite3.connect(resolved_db_path)
     cursor = conn.cursor()
 
+    query = "SELECT room_id, start_time, end_time, source, status, summary FROM occupancy_cache WHERE 1=1"
+    params: List[Union[str, int]] = []
+
     if room_ids:
         placeholders = ",".join("?" for _ in room_ids)
-        cursor.execute(
-            f"SELECT room_id, start_time, end_time, source, status, summary FROM occupancy_cache WHERE room_id IN ({placeholders})",
-            room_ids,
-        )
-    else:
-        cursor.execute(
-            "SELECT room_id, start_time, end_time, source, status, summary FROM occupancy_cache"
-        )
+        query += f" AND room_id IN ({placeholders})"
+        params.extend(room_ids)
 
+    if target_date:
+        t_str = target_date.isoformat()
+        query += " AND (target_date = ? OR (target_date IS NULL AND start_time LIKE ?))"
+        params.extend([t_str, f"{t_str}%"])
+
+    cursor.execute(query, params)
     rows = cursor.fetchall()
     conn.close()
 
