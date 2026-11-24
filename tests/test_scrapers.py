@@ -162,6 +162,62 @@ async def test_libcal_scraper(sample_rooms, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_libcal_scraper_dom_html_fallback(sample_rooms, monkeypatch):
+    target_date = date(2026, 11, 23)
+    scraper = LibCalScraper(base_url="https://mock-libcal.dcu.ie")
+
+    mock_html = """
+    <div class="fc-timeline flex-container">
+        <div class="fc-timeline-event s-lc-eq-period-unavailable" title="14:00 - 15:00 - GSR 1 - Unavailable">
+            14:00 - 15:00 - GSR 1 - Unavailable
+        </div>
+    </div>
+    """
+
+    class MockResponse:
+        status_code = 200
+        headers = {"content-type": "text/html"}
+
+        def json(self):
+            return {}
+
+        @property
+        def text(self):
+            return mock_html
+
+    async def mock_get(self, url, params=None):
+        return MockResponse()
+
+    monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
+
+    blocks = await scraper.fetch_occupancy_blocks(sample_rooms, target_date)
+    assert len(blocks) == 1
+    assert blocks[0].room_id == "lib-oreilly-gsr01"
+    assert blocks[0].start_time == datetime(2026, 11, 23, 14, 0, tzinfo=DUBLIN_TZ)
+    assert blocks[0].end_time == datetime(2026, 11, 23, 15, 0, tzinfo=DUBLIN_TZ)
+
+
+@pytest.mark.asyncio
+async def test_libcal_scraper_error_handling(sample_rooms, monkeypatch):
+    target_date = date(2026, 11, 23)
+    scraper = LibCalScraper(base_url="https://mock-libcal.dcu.ie")
+
+    class MockResponse500:
+        status_code = 500
+        headers = {"content-type": "text/html"}
+        text = "Internal Server Error"
+
+    async def mock_get(self, url, params=None):
+        return MockResponse500()
+
+    monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
+
+    res = await scraper.fetch_safe(sample_rooms, target_date)
+    assert res.success is False
+    assert "HTTP 500" in res.error_message
+
+
+@pytest.mark.asyncio
 async def test_su_events_scraper(sample_rooms, monkeypatch):
     target_date = date(2026, 11, 23)
     scraper = SUEventsScraper(base_url="https://mock-su.dcu.ie")

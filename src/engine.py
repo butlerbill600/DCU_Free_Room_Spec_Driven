@@ -26,10 +26,12 @@ def calculate_room_availability(
     occupancy_blocks: List[OccupancyBlock],
     now: Optional[datetime] = None,
     target_date: Optional[date] = None,
+    scraper_health: Optional[dict] = None,
 ) -> RoomAvailability:
     """Calculate room availability for the 07:00–22:00 window on a target date.
 
     - Operating window: 07:00 to 22:00 Europe/Dublin daily.
+    - Fail-Closed Guard: If LibCal scraper failed for Library GSRs, room is marked unavailable.
     - When target_date == today:
       - Strict Exclusion: If room has active occupancy at 'now', marked unavailable.
       - Free Until & Remaining Minutes: Calculates continuous free time from 'now' until next booking or 22:00.
@@ -58,6 +60,13 @@ def calculate_room_availability(
     else:
         is_within_operating_hours = True
 
+    # Check fail-closed guard for Library GSRs when LibCal scrape fails
+    is_libcal_failed = (
+        (room.campus == Campus.LIBRARY_GSRS or "lib" in room.id)
+        and scraper_health is not None
+        and scraper_health.get("libcal") is False
+    )
+
     # Standardize occupancy block timezones and filter for target day's operating window
     room_blocks: List[OccupancyBlock] = []
     for block in occupancy_blocks:
@@ -81,7 +90,12 @@ def calculate_room_availability(
     free_until: Optional[datetime] = None
     remaining_minutes = 0
 
-    if is_today:
+    if is_libcal_failed:
+        is_available_now = False
+        free_until = None
+        remaining_minutes = 0
+        free_until_str = "LIBCAL SCRAPE FAILED / UNAVAILABLE"
+    elif is_today:
         # Strict exclusion rule for today: active occupied block at 'now'
         is_currently_occupied = False
         for block in room_blocks:
@@ -108,9 +122,11 @@ def calculate_room_availability(
 
             seconds_free = (free_until - now).total_seconds()
             remaining_minutes = max(0, int(seconds_free // 60))
+            free_until_str = free_until.strftime("%H:%M") if free_until else None
         else:
             free_until = None
             remaining_minutes = 0
+            free_until_str = None
     else:
         # Future date: evaluate free windows across 07:00-22:00
         booked_intervals = []
@@ -144,12 +160,12 @@ def calculate_room_availability(
             is_available_now = True
             remaining_minutes = total_free_mins
             free_until = free_intervals[0][1]
+            free_until_str = free_until.strftime("%H:%M") if free_until else None
         else:
             is_available_now = False
             remaining_minutes = 0
             free_until = None
-
-    free_until_str = free_until.strftime("%H:%M") if free_until else None
+            free_until_str = None
 
     # Generate 15 timeline blocks (07:00-08:00, 08:00-09:00, ..., 21:00-22:00)
     timeline: List[TimelineBlock] = []

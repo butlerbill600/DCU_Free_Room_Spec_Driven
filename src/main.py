@@ -134,7 +134,11 @@ async def search_rooms(
     all_availabilities: List[RoomAvailability] = []
     for room in rooms:
         avail = calculate_room_availability(
-            room, occupancy_blocks, now=now_dublin, target_date=target_date
+            room,
+            occupancy_blocks,
+            now=now_dublin,
+            target_date=target_date,
+            scraper_health=health_status,
         )
         all_availabilities.append(avail)
 

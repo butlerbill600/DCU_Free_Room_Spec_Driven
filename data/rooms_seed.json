@@ -235,6 +235,32 @@
     }
   },
   {
+    "id": "lib-oreilly-gsr04",
+    "code": "GSR 4",
+    "name": "O'Reilly Library GSR 4 (Ground Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 4,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_4"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr05",
+    "code": "GSR 5",
+    "name": "O'Reilly Library GSR 5 (Ground Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 4,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_5"
+    }
+  },
+  {
     "id": "lib-oreilly-gsr06",
     "code": "GSR 6",
     "name": "O'Reilly Library GSR 6 (First Floor)",
@@ -261,6 +287,19 @@
     }
   },
   {
+    "id": "lib-oreilly-gsr08",
+    "code": "GSR 8",
+    "name": "O'Reilly Library GSR 8 (First Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_8"
+    }
+  },
+  {
     "id": "lib-oreilly-gsr09",
     "code": "GSR 9",
     "name": "O'Reilly Library GSR 9 (First Floor)",
@@ -284,6 +323,19 @@
     "room_type": "Group Study Room",
     "source_ids": {
       "libcal": "oreilly_gsr_10"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr12",
+    "code": "GSR 12",
+    "name": "O'Reilly Library GSR 12 (Second Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 8,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_12"
     }
   },
   {
@@ -336,6 +388,32 @@
     "room_type": "Group Study Room",
     "source_ids": {
       "libcal": "oreilly_gsr_16"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr17",
+    "code": "GSR 17",
+    "name": "O'Reilly Library GSR 17 (Second Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_17"
+    }
+  },
+  {
+    "id": "lib-oreilly-gsr18",
+    "code": "GSR 18",
+    "name": "O'Reilly Library GSR 18 (Second Floor)",
+    "campus": "Library GSRs",
+    "building_code": "LIB_OREILLY",
+    "building_name": "O'Reilly Library",
+    "capacity": 6,
+    "room_type": "Group Study Room",
+    "source_ids": {
+      "libcal": "oreilly_gsr_18"
     }
   },
   {

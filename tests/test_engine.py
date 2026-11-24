@@ -361,3 +361,35 @@ def test_date_keyed_caching(temp_db):
     assert len(cached_b) == 1
     assert cached_b[0].summary == "Day B Study"
 
+
+def test_libcal_fail_closed_guard(sample_room):
+    now = datetime(2026, 11, 23, 10, 0, tzinfo=DUBLIN_TZ)
+
+    lib_room = Room(
+        id="lib-oreilly-gsr06",
+        code="GSR 6",
+        name="O'Reilly Library GSR 6",
+        campus=Campus.LIBRARY_GSRS,
+        building_code="LIB_OREILLY",
+        building_name="O'Reilly Library",
+        capacity=8,
+        room_type=RoomType.GROUP_STUDY_ROOM,
+        source_ids={"libcal": "oreilly_gsr_6"},
+    )
+
+    # When LibCal scraper fails (health status False), room must be marked unavailable
+    avail_failed = calculate_room_availability(
+        lib_room, [], now=now, scraper_health={"libcal": False}
+    )
+    assert avail_failed.is_available_now is False
+    assert avail_failed.remaining_minutes == 0
+    assert avail_failed.free_until_str == "LIBCAL SCRAPE FAILED / UNAVAILABLE"
+
+    # When LibCal scraper is healthy, room is evaluated normally
+    avail_healthy = calculate_room_availability(
+        lib_room, [], now=now, scraper_health={"libcal": True}
+    )
+    assert avail_healthy.is_available_now is True
+    assert avail_healthy.remaining_minutes == 720  # 10:00 to 22:00
+
+
