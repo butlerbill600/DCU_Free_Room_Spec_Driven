@@ -37,4 +37,4 @@
 - [x] Implement responsive 7-day horizontal selector bar in frontend (`src/ui/index.html`) with day pills (`Today`, `Tomorrow`, +5 days)
 - [x] Write unit tests in `tests/` covering future-date availability calculations, date-keyed caching, and API date parameter validation
 - [x] Rebuild native macOS app bundle with `build_app.py`
-- [ ] Open clean Pull Request into `main`
+- [x] Open clean Pull Request into `main`
